@@ -1,0 +1,152 @@
+SELECT
+    $timeSeries as t,
+    `source-ip` as src,
+    count()
+FROM $table
+PREWHERE $timeFilter
+WHERE 
+  (`url` LIKE '%index.php%' OR
+    `url` LIKE '%eval-stdin.php%' OR
+    `url` LIKE '%info.php%' OR
+    `url` LIKE '%header.php%' OR
+    `url` LIKE '%add.php%' OR
+    `url` LIKE '%send.php%' OR
+    `url` LIKE '%admin.php%' OR
+    `url` LIKE '%login.php%' OR
+    `url` LIKE '%modules.php%' OR
+    `url` LIKE '%uploadfile.php%' OR
+    `url` LIKE '%read.php%' OR
+    `url` LIKE '%post.php%' OR
+    `url` LIKE '%viewtopic.php%' OR
+    `url` LIKE '%expanded.php%' OR
+    `url` LIKE '%login_page.php%' OR
+    `url` LIKE '%header.php%' OR
+    `url` LIKE '%admin_members.php%' OR
+    `url` LIKE '%install.php%' OR
+    `url` LIKE '%default.php%' OR
+    `url` LIKE '%export.php%' OR
+    `url` LIKE '%phpinfo.php%' OR
+    `url` LIKE '%page.php%' OR
+    `url` LIKE '%error.php%' OR
+    `url` LIKE '%member.php%' OR
+    `url` LIKE '%user.php%' OR
+    `url` LIKE '%shell.php%' OR
+    `url` LIKE '%dostuff.php%' OR
+    `url` LIKE '%php.cgi%' OR
+    `url` LIKE '%test.php%')
+  AND `source-ip` IN (
+    SELECT `source-ip`
+    FROM $table
+    PREWHERE $timeFilter
+    WHERE
+  	(`url` LIKE '%index.php%' OR
+    `url` LIKE '%eval-stdin.php%' OR
+    `url` LIKE '%info.php%' OR
+    `url` LIKE '%header.php%' OR
+    `url` LIKE '%add.php%' OR
+    `url` LIKE '%send.php%' OR
+    `url` LIKE '%admin.php%' OR
+    `url` LIKE '%login.php%' OR
+    `url` LIKE '%modules.php%' OR
+    `url` LIKE '%uploadfile.php%' OR
+    `url` LIKE '%read.php%' OR
+    `url` LIKE '%post.php%' OR
+    `url` LIKE '%viewtopic.php%' OR
+    `url` LIKE '%expanded.php%' OR
+    `url` LIKE '%login_page.php%' OR
+    `url` LIKE '%header.php%' OR
+    `url` LIKE '%admin_members.php%' OR
+    `url` LIKE '%install.php%' OR
+    `url` LIKE '%default.php%' OR
+    `url` LIKE '%export.php%' OR
+    `url` LIKE '%phpinfo.php%' OR
+    `url` LIKE '%page.php%' OR
+    `url` LIKE '%error.php%' OR
+    `url` LIKE '%member.php%' OR
+    `url` LIKE '%user.php%' OR
+    `url` LIKE '%shell.php%' OR
+    `url` LIKE '%dostuff.php%' OR
+    `url` LIKE '%php.cgi%' OR
+    `url` LIKE '%test.php%') AND 
+    vip IN ($vip)
+    GROUP BY `source-ip`
+    ORDER BY count() DESC
+    LIMIT 20)
+GROUP BY
+    src,
+    t
+ORDER BY
+    t,
+    count() ASC
+
+
+---------------------------------------------------------------------
+
+
+
+SELECT
+    $timeSeries as t,
+    `source-ip` as src,
+    count()
+FROM $table
+PREWHERE $timeFilter
+WHERE 
+  (`query` LIKE '%SELECT%' OR `query` LIKE '%UNION%' OR `url` LIKE '%SELECT%' OR `query` LIKE '%union%' OR `query` LIKE '%sleep%')
+  AND `source-ip` IN (
+    SELECT `source-ip`
+    FROM $table
+    PREWHERE $timeFilter
+    WHERE
+  	(`query` LIKE '%SELECT%' OR `query` LIKE '%UNION%' OR `url` LIKE '%SELECT%' OR `query` LIKE '%union%' OR `query` LIKE '%sleep%' 
+OR `query` LIKE '%db_user%'
+OR `query` LIKE '%db_passwd%'
+OR `query` LIKE '%db_server%'
+OR `query` LIKE '%sortby%'
+OR `query` LIKE '%select%') AND
+    `source-ip` NOT BETWEEN toIPv4('10.0.0.0') AND toIPv4('10.255.255.255') AND 
+    `source-ip` NOT BETWEEN toIPv4('172.16.0.0') AND toIPv4('172.31.255.255') AND 
+    `source-ip` NOT BETWEEN toIPv4('192.168.0.0') AND toIPv4('192.168.255.255') AND 
+    vip IN ($vip)
+    GROUP BY `source-ip`
+    ORDER BY count() DESC
+    LIMIT 20)
+GROUP BY
+    src,
+    t
+ORDER BY
+    t,
+    count() ASC
+
+-------------------------------------------------
+
+
+SELECT
+    $timeSeries as t,
+    `source-ip` as src,
+    count()
+FROM $table
+PREWHERE $timeFilter
+WHERE 
+  ((`query` LIKE '%alert(%') OR (`query` LIKE '%document.domain%') OR (`query` LIKE '%onmouseover%') OR (`query` LIKE '%document.cookie%') OR (`query` LIKE '%<script>%') OR (`query` LIKE '%onmouseleave%') OR (`query` LIKE '%onmouseenter%') 
+	OR (`query` LIKE '%<script>%')
+	OR (`query` LIKE '%document.domain%')
+	OR (`query` LIKE '%XSS%'))
+  AND `source-ip` IN (
+    SELECT `source-ip`
+    FROM $table
+    PREWHERE $timeFilter
+    WHERE
+  	((`query` LIKE '%alert(0)%') OR (`query` LIKE '%document.domain%') OR (`query` LIKE '%onmouseover%') OR (`query` LIKE '%document.cookie%') OR (`query` LIKE '%<script>%') OR (`query` LIKE '%onmouseleave%') OR (`query` LIKE '%onmouseenter%') OR (`query` LIKE '%XSS%')) AND
+    `source-ip` NOT BETWEEN toIPv4('10.0.0.0') AND toIPv4('10.255.255.255') AND 
+    `source-ip` NOT BETWEEN toIPv4('172.16.0.0') AND toIPv4('172.31.255.255') AND 
+    `source-ip` NOT BETWEEN toIPv4('192.168.0.0') AND toIPv4('192.168. 255.255') AND 
+    vip IN ($vip)
+    GROUP BY `source-ip`
+    ORDER BY count() DESC
+    LIMIT 20)
+GROUP BY
+    src,
+    t
+ORDER BY
+    t,
+    count() ASC
